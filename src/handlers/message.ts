@@ -1,5 +1,5 @@
-import { Message } from "whatsapp-web.js";
-import { startsWithIgnoreCase } from "../utils";
+import { Message } from "../whatsapp/message";
+import { normalizePhoneNumber, startsWithIgnoreCase } from "../utils";
 
 // Config & Constants
 import config from "../config";
@@ -21,7 +21,7 @@ import { transcribeWhisperApi } from "../providers/whisper-api";
 import { transcribeOpenAI } from "../providers/openai";
 
 // For deciding to ignore old messages
-import { botReadyTimestamp } from "../index";
+import { botReadyTimestamp } from "../state";
 
 // Handles message
 async function handleIncomingMessage(message: Message) {
@@ -50,9 +50,14 @@ async function handleIncomingMessage(message: Message) {
 	const selfNotedMessage = message.fromMe && message.hasQuotedMsg === false && message.from === message.to;
 
 	if (config.whitelistedEnabled) {
-		const whitelistedPhoneNumbers = getConfig("general", "whitelist");
+		const whitelistedPhoneNumbers: string[] = getConfig("general", "whitelist");
+		const senderNumber = normalizePhoneNumber(message.from);
 
-		if (!selfNotedMessage && whitelistedPhoneNumbers.length > 0 && !whitelistedPhoneNumbers.includes(message.from)) {
+		if (
+			!selfNotedMessage &&
+			whitelistedPhoneNumbers.length > 0 &&
+			!whitelistedPhoneNumbers.some((number) => normalizePhoneNumber(number) === senderNumber)
+		) {
 			cli.print(`Ignoring message from ${message.from} because it is not whitelisted.`);
 			return;
 		}
@@ -94,6 +99,9 @@ async function handleIncomingMessage(message: Message) {
 			default:
 				cli.print(`[Transcription] Unsupported transcription mode: ${transcriptionMode}`);
 		}
+
+		if (!res) return;
+
 		const { text: transcribedText, language: transcribedLanguage } = res;
 
 		// Check transcription is null (error)

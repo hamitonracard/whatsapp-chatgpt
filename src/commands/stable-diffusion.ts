@@ -1,6 +1,7 @@
 import { ICommandModule, ICommandDefinition, ICommandsMap } from "../types/commands";
-import { Message, MessageMedia } from "whatsapp-web.js";
+import { Message, MessageMedia } from "../whatsapp/message";
 import * as cli from "../cli/ui";
+import config from "../config";
 
 export const StableDiffusionModule: ICommandModule = {
 	key: "sd",
@@ -38,7 +39,7 @@ const generate: ICommandDefinition = {
 
 			cli.print(`[Stable Diffusion] Received prompt from ${message.from}: ${valueStr}`);
 
-			const huggingFaceAPIToken = process.env.HUGGINGFACE_API_TOKEN;
+			const huggingFaceAPIToken = config.huggingFaceApiToken;
 
 			if (!huggingFaceAPIToken) {
 				throw new Error("[Stable Diffusion] Huggingface API token not found, set the HUGGINGFACE_API_TOKEN environment variable");
@@ -60,14 +61,22 @@ const generate: ICommandDefinition = {
 			};
 			const response = await fetch(url, options);
 			const end = Date.now() - start;
-			const imageBlob = await response.blob();
+
+			if (!response.ok) {
+				throw new Error(`[Stable Diffusion] Huggingface request failed with status ${response.status}: ${await response.text()}`);
+			}
+
 			const contentType = response.headers.get("Content-Type") || "image/jpeg";
-			const buffer = Buffer.from(await imageBlob.arrayBuffer());
+			if (contentType.includes("application/json")) {
+				throw new Error(`[Stable Diffusion] Huggingface returned an error: ${await response.text()}`);
+			}
+
+			const buffer = Buffer.from(await response.arrayBuffer());
 			const image = new MessageMedia(contentType, buffer.toString("base64"));
 
 			cli.print(`[Stable Diffusion] Answer to ${message.from} | Huggingface request took ${end}ms`);
 
-			message.reply(image);
+			await message.reply(image);
 		} catch (error: any) {
 			console.error("An error occurred", error);
 			message.reply("An error occurred, please contact the administrator. (" + error.message + ")");

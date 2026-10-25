@@ -17,7 +17,7 @@ case $os in
       echo "Installing latest version of docker..."
       curl -fsSL https://get.docker.com -o get-docker.sh
       sh get-docker.sh
-      apt install docker-compose
+      apt install -y docker-compose-plugin
       echo "Packages installed successfully."
     elif command -v yum &> /dev/null; then
       echo "Installing packages using yum..."
@@ -25,7 +25,7 @@ case $os in
       echo "Installing latest version of docker..."
       curl -fsSL https://get.docker.com -o get-docker.sh
       sh get-docker.sh
-      yum install -y git docker-compose
+      yum install -y git docker-compose-plugin
       echo "Packages installed successfully."
     else
       echo "Unsupported package manager."
@@ -40,16 +40,29 @@ esac
 
 # Clone Git repo and run Docker Compose
 echo "Cloning Git repo..."
-git clone https://github.com/askrella/whatsapp-chatgpt.git
-cd repo
+git clone https://github.com/askrella/whatsapp-chatgpt.git whatsapp-chatgpt
+cd whatsapp-chatgpt
 
-# Prompt user for API key
-read -p "Enter your OpenAI API key: " api_key
+cp .env-example .env
 
-# Replace API key variable in Docker Compose file
-sed -i "s/OPENAI_API_KEY:.*/OPENAI_API_KEY: \"$api_key\"/g" docker-compose.yml
+# Prompt user for provider and API key
+read -p "AI provider [openai]: " provider
+provider=${provider:-openai}
+read -p "Enter your API key: " api_key
+
+sed -i "s/^AI_PROVIDER=.*/AI_PROVIDER=$provider/" .env
+if [[ "$provider" == "openai" ]]; then
+  sed -i "s/^OPENAI_API_KEY=.*/OPENAI_API_KEY=$api_key/" .env
+else
+  key_var=$(echo "$provider" | tr '[:lower:]' '[:upper:]')_API_KEY
+  if grep -q "^${key_var}=" .env; then
+    sed -i "s|^${key_var}=.*|${key_var}=$api_key|" .env
+  else
+    echo "${key_var}=$api_key" >> .env
+  fi
+fi
 
 # Start Docker Compose
 echo "Starting Docker containers..."
-docker-compose up -d
-echo "Docker containers started successfully."
+docker compose up -d --build
+docker compose logs -f

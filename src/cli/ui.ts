@@ -10,9 +10,9 @@ export const printError = (text: string) => {
 
 export const printIntro = () => {
 	console.log("");
-	console.log(color.bgCyan(color.white(" Whatsapp ChatGPT & DALL-E ")));
+	console.log(color.bgCyan(color.white(" Whatsapp AI Assistant ")));
 	console.log("|-------------------------------------------------------------------------------------------------|");
-	console.log("| A Whatsapp bot that uses OpenAI's ChatGPT and DALL-E to generate text and images from a prompt. |");
+	console.log("| A WhatsApp bot that uses OpenAI, Claude, Gemini, DeepSeek, and other providers to answer you.  |");
 	console.log("|-------------------------------------------------------------------------------------------------|");
 	console.log("");
 };

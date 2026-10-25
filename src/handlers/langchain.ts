@@ -1,4 +1,4 @@
-import { Message } from "whatsapp-web.js";
+import { Message } from "../whatsapp/message";
 import BrowserAgentProvider from "../providers/browser-agent";
 import * as cli from "../cli/ui";
 

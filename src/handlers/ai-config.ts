@@ -1,4 +1,4 @@
-import { Message } from "whatsapp-web.js";
+import { Message } from "../whatsapp/message";
 import { aiConfigTarget, aiConfigTypes, aiConfigValues, IAiConfig } from "../types/ai-config";
 import { dalleImageSize } from "../types/dalle-config";
 import { GeneralModule } from "../commands/general";

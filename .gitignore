@@ -588,7 +588,3 @@ MigrationBackup/
 
 # End of https://www.toptal.com/developers/gitignore/api/vs,intellij+all,node
 .DS_Store
-
-
-.wwebjs_cache
-.session

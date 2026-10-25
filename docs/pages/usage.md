@@ -32,7 +32,10 @@ Available commands:
 	!config chat id - Get the ID of the chat
 	!config general settings - Get current settings
 	!config general whitelist <value> - Set whitelisted phone numbers
-	!config gpt apiKey <value> - Set token pool, support multiple tokens with comma-separated
+	!config gpt provider <value> - Set the AI provider
+	!config gpt model <value> - Set the AI model
+	!config gpt apiKey <value> - Set the API key for the active provider
+	!config gpt baseUrl <value> - Set a custom base URL
 	!config gpt maxModelTokens <value> - Set max model tokens value
 	!config transcription enabled <value> - Toggle if transcription is enabled
 	!config transcription mode <value> - Set transcription mode
@@ -41,6 +44,8 @@ Available commands:
 
 Available values:
 	dalle size: 256x256, 512x512, 1024x1024
+	gpt provider: openai, anthropic, gemini, cerebras, openrouter, deepseek, groq, xai, mistral, ollama, custom
+	gpt model: any model supported by the active provider
 	gpt apiKey: sk-xxxx,sk-xxxx
 	gpt maxModelTokens: integer
 	transcription enabled: true, false

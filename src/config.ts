@@ -10,14 +10,22 @@ dotenv.config();
 
 // Config Interface
 interface IConfig {
+	// WhatsApp
+	sessionPath: string;
 	// Access control
 	whitelistedPhoneNumbers: string[];
 	whitelistedEnabled: boolean;
-	// OpenAI
-	openAIModel: string;
+	// AI provider (OpenAI, Anthropic, Gemini, Cerebras, OpenRouter, DeepSeek, Groq, xAI, Mistral, Ollama, custom)
+	aiProvider: string;
+	aiModel: string;
+	aiApiKey: string;
+	aiBaseUrl: string;
+	// OpenAI-specific features (DALL-E, Whisper, moderation)
 	openAIAPIKeys: string[];
 	maxModelTokens: number;
 	prePrompt: string | undefined;
+	// HuggingFace (Stable Diffusion)
+	huggingFaceApiToken: string;
 
 	// Prefix
 	prefixEnabled: boolean;
@@ -58,13 +66,22 @@ interface IConfig {
 
 // Config
 export const config: IConfig = {
+	sessionPath: process.env.SESSION_PATH || "./session",
+
 	whitelistedPhoneNumbers: process.env.WHITELISTED_PHONE_NUMBERS?.split(",") || [],
 	whitelistedEnabled: getEnvBooleanWithDefault("WHITELISTED_ENABLED", false),
 
 	openAIAPIKeys: (process.env.OPENAI_API_KEYS || process.env.OPENAI_API_KEY || "").split(",").filter((key) => !!key), // Default: []
-	openAIModel: process.env.OPENAI_GPT_MODEL || "gpt-3.5-turbo", // Default: gpt-3.5-turbo
 	maxModelTokens: getEnvMaxModelTokens(), // Default: 4096
 	prePrompt: process.env.PRE_PROMPT, // Default: undefined
+
+	// Chat provider. Falls back to OpenAI for backwards compatibility.
+	aiProvider: process.env.AI_PROVIDER || "openai", // Default: openai
+	aiModel: process.env.AI_MODEL || process.env.OPENAI_GPT_MODEL || "", // Default: provider default
+	aiApiKey: process.env.AI_API_KEY || "", // Default: provider-specific env var
+	aiBaseUrl: process.env.AI_BASE_URL || "", // Default: provider default
+
+	huggingFaceApiToken: process.env.HUGGINGFACE_API_TOKEN || "", // Default: ""
 
 	// Prefix
 	prefixEnabled: getEnvBooleanWithDefault("PREFIX_ENABLED", true), // Default: true

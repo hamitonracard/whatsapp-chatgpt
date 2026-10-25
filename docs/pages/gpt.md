@@ -1,11 +1,26 @@
 # GPT
 
-## Model
+## Provider & Model
 
-You can specify the model which should be used with the `OPENAI_MODEL` environment variabl
+The bot supports multiple AI providers. Set `AI_PROVIDER` to one of `openai`, `anthropic`, `gemini`, `cerebras`, `openrouter`, `deepseek`, `groq`, `xai`, `mistral`, `ollama`, or `custom`. The matching provider API key is read automatically.
 
 ```bash
-OPENAI_MODEL=gpt-3.5-turbo # or gpt-4
+AI_PROVIDER=deepseek
+DEEPSEEK_API_KEY=sk-...
+AI_MODEL=deepseek-chat
+```
+
+You can override the model with the `AI_MODEL` environment variable and the endpoint with `AI_BASE_URL`. If `AI_BASE_URL` is set with `AI_PROVIDER=custom`, any OpenAI-compatible API can be used.
+
+`OPENAI_GPT_MODEL` is still accepted as a fallback for `AI_MODEL`.
+
+Runtime configuration is also available:
+
+```
+!config gpt provider <provider>
+!config gpt model <model>
+!config gpt apiKey <key>
+!config gpt baseUrl <url>
 ```
 
 ## Configuration

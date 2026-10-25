@@ -1,4 +1,4 @@
-import { MessageMedia } from "whatsapp-web.js";
+import { Message, MessageMedia } from "../whatsapp/message";
 import { openai } from "../providers/openai";
 import { aiConfig } from "../handlers/ai-config";
 import OpenAI from "openai";
@@ -8,7 +8,7 @@ import * as cli from "../cli/ui";
 // Moderation
 import { moderateIncomingPrompt } from "./moderation";
 
-const handleMessageDALLE = async (message: any, prompt: any) => {
+const handleMessageDALLE = async (message: Message, prompt: string) => {
 	try {
 		const start = Date.now();
 
@@ -28,18 +28,20 @@ const handleMessageDALLE = async (message: any, prompt: any) => {
 		const response = await openai.images.generate({
 			prompt: prompt,
 			n: 1,
-			size: aiConfig.dalle.size as CreateImageRequestSizeEnum,
+			size: aiConfig.dalle.size as any,
 			response_format: "b64_json"
 		});
 
 		const end = Date.now() - start;
 
-		const base64 = response.data.data[0].b64_json as string;
+		const base64 = response.data[0]?.b64_json;
+		if (!base64) throw new Error("OpenAI did not return an image");
+
 		const image = new MessageMedia("image/jpeg", base64, "image.jpg");
 
 		cli.print(`[DALL-E] Answer to ${message.from} | OpenAI request took ${end}ms`);
 
-		message.reply(image);
+		await message.reply(image);
 	} catch (error: any) {
 		console.error("An error occured", error);
 		message.reply("An error occured, please contact the administrator. (" + error.message + ")");

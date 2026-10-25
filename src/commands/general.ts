@@ -1,5 +1,5 @@
 import { ICommandModule, ICommandDefinition, ICommandsMap } from "../types/commands";
-import { Message } from "whatsapp-web.js";
+import { Message } from "../whatsapp/message";
 import { config } from "../config";
 import { aiConfigTarget, aiConfigTypes, aiConfigValues, IAiConfig } from "../types/ai-config";
 import { aiConfig, getConfig } from "../handlers/ai-config";
@@ -49,7 +49,9 @@ const settings: ICommandDefinition = {
 
 		// Whitelisted fields from config
 		[
-			"openAIModel",
+			"aiProvider",
+			"aiModel",
+			"aiBaseUrl",
 			"prePrompt",
 			"gptPrefix",
 			"dallePrefix",
